@@ -151,6 +151,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Models\Auxiliary\ModelRotator.cs" />
     <Compile Include="Models\ObjLoader\ModelHandler.cs" />
     <Compile Include="Models\ObjLoader\ObjFile.cs" />
     <Compile Include="Models\ObjLoader\ObjModel.cs" />

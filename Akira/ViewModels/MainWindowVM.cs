@@ -18,14 +18,18 @@ namespace Akira.ViewModels
         private readonly Scene _scene;
         private Microsoft.Win32.OpenFileDialog _openFileDialog;
         private AkiraRender _akiraRender;
-        private static OpenGL gl;
-        private float rotate = 10f;
+        private static OpenGL _gl;
+        private static ObjFile _objFile;
+        private static Texture _texture;
+        private ModelRotator _modelRotator;
 
+        private float rotate;
         private float _theta;
         private float _actWidth;
         private float _actHeight;
         private string _modelPath;
         private string _texturePath;
+        private static bool _loaded;
 
         public DelegateCommand OpenFileCommand { get; private set; }
         public DelegateCommand ResizeCommand { get; private set; }
@@ -36,11 +40,14 @@ namespace Akira.ViewModels
         {
             _openFileDialog = new Microsoft.Win32.OpenFileDialog();
             _akiraRender = new AkiraRender();
-            gl = new OpenGL();
-
+            _gl = new OpenGL();
             _axies = new Axies();
             _scene = new Scene();
+            _modelRotator = new ModelRotator(_gl);
+
             _theta = 0;
+            rotate = 10f;
+            _loaded = false;
 
             OpenFileCommand = new DelegateCommand(OpenFile);
             InitializedCommand = new DelegateCommand(Initialized);
@@ -53,13 +60,17 @@ namespace Akira.ViewModels
             _theta += 0.01f;
             _scene.CreateModelviewAndNormalMatrix(_theta);
 
-            gl.Clear(OpenGL.GL_COLOR_BUFFER_BIT | OpenGL.GL_DEPTH_BUFFER_BIT);
-            gl.ClearColor(0, 0, 0, 0);
-            gl.LoadIdentity();
-            gl.Translate(0.0f, -1.0f, -12.0f);
+            _gl.Clear(OpenGL.GL_COLOR_BUFFER_BIT | OpenGL.GL_DEPTH_BUFFER_BIT);
+            _gl.ClearColor(0, 0, 0, 0);
+            _gl.LoadIdentity();
+            _gl.Translate(-1.0f, -1.0f, -12.0f);
 
-            _axies.Render(gl, RenderMode.Design);
-            gl.Rotate(rotate++, 0.0f, 1.0f, 0.0f);
+            _axies.Render(_gl, RenderMode.Design);
+
+            //_gl.Rotate(_modelRotator.AngleX, 1.0f, 0.0f, 0.0f);
+            //_gl.Rotate(_modelRotator.AngleY, 0.0f, 1.0f, 0.0f);
+            //_gl.Rotate(_modelRotator.AngleZ, 0.0f, 0.0f, 1.0f);
+            _gl.Rotate(rotate++, 0.0f, 1.0f, 0.0f);
 
             //if(loaded)
             //{
@@ -72,9 +83,9 @@ namespace Akira.ViewModels
         private void Initialized()
         {
 
-            _scene.Initialise(gl);
+            _scene.Initialise(_gl);
 
-            gl.Enable(OpenGL.GL_DEPTH_TEST);
+            _gl.Enable(OpenGL.GL_DEPTH_TEST);
         }
 
         private void Resized()
@@ -82,10 +93,10 @@ namespace Akira.ViewModels
 
             _scene.CreateProjectionMatrix(_actWidth, _actHeight);
 
-            gl.MatrixMode(OpenGL.GL_PROJECTION);
-            gl.LoadIdentity();
-            gl.MultMatrix(_scene.ProjectionMatrix.to_array());
-            gl.MatrixMode(OpenGL.GL_MODELVIEW);
+            _gl.MatrixMode(OpenGL.GL_PROJECTION);
+            _gl.LoadIdentity();
+            _gl.MultMatrix(_scene.ProjectionMatrix.to_array());
+            _gl.MatrixMode(OpenGL.GL_MODELVIEW);
         }
 
         private void OpenFile()
@@ -99,59 +110,40 @@ namespace Akira.ViewModels
                 _texturePath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(_modelPath), System.IO.Path.GetFileNameWithoutExtension(_modelPath) + ".png");
 
                 //LoadAndRenderModel();
-                loaded = true;
+                _loaded = true;
             }
         }
 
         private void LoadAndRenderModel()
         {
-            /*
-            // Use your ObjFile class to load the model
-            var objFile = new ObjFile();
-            objFile.Load(_modelPath);
-
-            // Load the texture
-            var texture = new Texture();
-            using (var image = new Bitmap(_texturePath))
-            {
-                texture.Create(_args.OpenGL, image);  // Use 'gl' from 'args'
-            }
-
-            // Call AkiraRender to render the model with the texture
-            _akiraRender.Loading(_args.OpenGL, _modelPath, _texturePath, objFile, texture);
-            */
             AkiraRender ar = new AkiraRender();
 
             Console.WriteLine(_modelPath);
             Console.WriteLine(_texturePath);
 
-            if (objFile == null)
+            if (_objFile == null)
             {
-                objFile = new ObjFile();
+                _objFile = new ObjFile();
 
                 //objFile.Load(_modelPath);
-                objFile.Load("ar-15_lp.obj");
+                _objFile.Load("ar-15_lp.obj");
             }
 
-            if (texture == null)
+            if (_texture == null)
             {
-                gl.TexParameter(OpenGL.GL_TEXTURE_2D, OpenGL.GL_TEXTURE_MIN_FILTER, OpenGL.GL_LINEAR);
+                _gl.TexParameter(OpenGL.GL_TEXTURE_2D, OpenGL.GL_TEXTURE_MIN_FILTER, OpenGL.GL_LINEAR);
                 //         gl.TexParameter(OpenGL.GL_TEXTURE_2D, OpenGL.GL_TEXTURE_MAG_FILTER, OpenGL.GL_LINEAR);
-                gl.TexParameter(OpenGL.GL_TEXTURE_2D, OpenGL.GL_TEXTURE_WRAP_S, OpenGL.GL_REPEAT);
-                gl.TexParameter(OpenGL.GL_TEXTURE_2D, OpenGL.GL_TEXTURE_WRAP_T, OpenGL.GL_REPEAT);
+                _gl.TexParameter(OpenGL.GL_TEXTURE_2D, OpenGL.GL_TEXTURE_WRAP_S, OpenGL.GL_REPEAT);
+                _gl.TexParameter(OpenGL.GL_TEXTURE_2D, OpenGL.GL_TEXTURE_WRAP_T, OpenGL.GL_REPEAT);
                 // Загрузка текстуры
-                texture = new Texture();
+                _texture = new Texture();
                 //texture.Create(gl, _texturePath);
-                texture.Create(gl, "ar-15_lp.png");
+                _texture.Create(_gl, "ar-15_lp.png");
             }
 
-            ar.Loading(gl, "ar-15_lp.obj", "ar-15_lp.png", objFile, texture);
+            ar.Loading(_gl, "ar-15_lp.obj", "ar-15_lp.png", _objFile, _texture);
 
         }
-
-        private static ObjFile objFile;
-        private static Texture texture;
-        private static bool loaded = false;
 
         public float actWidth
         {
