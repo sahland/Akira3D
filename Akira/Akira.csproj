@@ -50,7 +50,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>Akira_icon.ico</ApplicationIcon>
+    <ApplicationIcon>assets\Akira_icon.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject />
@@ -215,7 +215,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Akira_icon.ico" />
+    <Resource Include="assets\Akira_icon.ico" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="assets\images\Akira_icon.png" />
@@ -259,6 +259,8 @@
   <ItemGroup>
     <Resource Include="assets\images\Frame 80.png" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Views\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

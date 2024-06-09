@@ -111,7 +111,7 @@
                 </StackPanel>
             </Border>
 
-            <WPF:OpenGLControl x:Name="openGlCtrl"  OpenGLDraw="GlDOpenGLControl_OpenGLDrawraw"/>
+            <WPF:OpenGLControl x:Name="openGlCtrl"  OpenGLDraw="GlDOpenGLControl_OpenGLDrawraw" />
         </DockPanel>
     </Grid>
 </Window>

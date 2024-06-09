@@ -63,7 +63,7 @@ namespace Akira.ViewModels
             _gl.Clear(OpenGL.GL_COLOR_BUFFER_BIT | OpenGL.GL_DEPTH_BUFFER_BIT);
             _gl.ClearColor(0, 0, 0, 0);
             _gl.LoadIdentity();
-            _gl.Translate(-1.0f, -1.0f, -12.0f);
+            _gl.Translate(-1.0f, -1.0f, -20.0f);
 
             _axies.Render(_gl, RenderMode.Design);
 
@@ -126,7 +126,7 @@ namespace Akira.ViewModels
                 _objFile = new ObjFile();
 
                 //objFile.Load(_modelPath);
-                _objFile.Load("ar-15_lp.obj");
+                _objFile.Load("gtr.obj");
             }
 
             if (_texture == null)
@@ -138,10 +138,10 @@ namespace Akira.ViewModels
                 // Загрузка текстуры
                 _texture = new Texture();
                 //texture.Create(gl, _texturePath);
-                _texture.Create(_gl, "ar-15_lp.png");
+                _texture.Create(_gl, "gtr.png");
             }
 
-            ar.Loading(_gl, "ar-15_lp.obj", "ar-15_lp.png", _objFile, _texture);
+            ar.Loading(_gl, "gtr.obj", "gtr.png", _objFile, _texture);
 
         }
 
